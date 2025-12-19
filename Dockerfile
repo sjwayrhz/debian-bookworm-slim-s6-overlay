@@ -46,7 +46,7 @@ RUN find /etc/s6-overlay/s6-rc.d -name run -o -name up | xargs sed -i 's/\r$//'
 
 
 # 赋予脚本可执行权限 (包含 nginx, time-monitor 和新的 oneshot 脚本)
-RUN chmod +x /etc/s6-overlay/scripts/check-network.sh && \
+RUN chmod +x /usr/local/bin/check-network.sh && \
     chmod +x /etc/s6-overlay/s6-rc.d/check-network/up && \
     chmod +x /etc/s6-overlay/s6-rc.d/nginx/run && \
     chmod +x /etc/s6-overlay/s6-rc.d/time-monitor/run

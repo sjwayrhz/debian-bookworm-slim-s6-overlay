@@ -1,1 +1,1 @@
-/etc/s6-overlay/scripts/check-network.sh
+/usr/local/bin/check-network.sh
