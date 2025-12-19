@@ -19,7 +19,8 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
 # 4. 拷贝 HTML 文件 (从你指定的目录)
-COPY html/ /var/www/html/
+COPY dist/ /var/www/html/
+RUN chown -R www-data:www-data /var/www/html
 
 # 5. 拷贝 s6 服务配置
 COPY s6-config/ /etc/s6-overlay/s6-rc.d/
