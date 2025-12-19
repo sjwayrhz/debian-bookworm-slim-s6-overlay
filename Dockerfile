@@ -37,9 +37,9 @@ RUN set -x && \
 # 【核心改动】将 rootfs 文件夹内的所有内容复制到容器根目录
 COPY rootfs /
 
-# 赋予脚本可执行权限
-RUN chmod +x /etc/services.d/nginx/run && \
-    chmod +x /etc/services.d/time-monitor/run
+# 赋予脚本可执行权限 (调整为 s6-rc 路径)
+RUN chmod +x /etc/s6-overlay/s6-rc.d/nginx/run && \
+    chmod +x /etc/s6-overlay/s6-rc.d/time-monitor/run
 
 # 暴露端口
 EXPOSE 80
