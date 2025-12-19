@@ -1,0 +1,1 @@
+这是一个对于dockerhub镜像debian-bookworm-slim安装s6-overlay实现同时部署多进程的操作

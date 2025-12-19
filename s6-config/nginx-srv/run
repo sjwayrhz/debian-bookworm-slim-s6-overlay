@@ -1,0 +1,3 @@
+#!/command/with-contenv sh
+# 确保 Nginx 在前台运行，否则 s6 会认为它崩溃了并不断重启
+exec nginx -g "daemon off;"
