@@ -1,172 +1,70 @@
-# Debian with s6-overlay Docker Image
+# Docker Debian S6 Nginx Time Monitor (AJAX Version)
 
-基于 Debian Bookworm Slim 的 Docker 镜像，集成 s6-overlay 进程管理，运行 Nginx 和实时时间监控。
+这是一个基于 **Debian Bookworm** 的 Docker 项目示例。它演示了如何使用 **S6 Overlay** 管理多个进程，并通过 **AJAX 轮询** 实现前后端分离的数据更新，避免了页面整体刷新。
 
-## 功能特性
+## 🏗️ 架构说明
 
-- **s6-overlay 进程管理**：同时管理多个服务
-- **Nginx Web 服务器**：提供 HTTP 服务
-- **实时时间显示**：每秒更新的北京时间（UTC+8）
-- **美观界面**：渐变色背景，响应式设计
+1.  **Nginx**: 作为一个静态 Web 服务器运行，托管 `index.html` 和数据文件。
+2.  **Time Monitor (Backend)**: 一个 Bash 脚本，每秒获取系统时间并将其写入 `/usr/share/nginx/html/time.txt`。
+3.  **Frontend**: `index.html` 包含一段 JavaScript，使用 `fetch` API 每秒读取一次 `time.txt` 并更新 DOM。
 
-## 快速开始
+这种设计使得页面加载平滑，无闪烁。
 
-### 运行镜像
+## 📂 目录结构
 
-```bash
-docker run -d -p 8080:80 --name debian-s6 sjwayrhz/debian:latest
-```
-
-然后在浏览器中访问 `http://localhost:8080`，你会看到一个实时滚动更新的时间页面。
-
-### 使用 Docker Compose
-
-创建 `docker-compose.yml` 文件：
-
-```yaml
-version: '3.8'
-
-services:
-  debian-s6:
-    image: sjwayrhz/debian:latest
-    ports:
-      - "8080:80"
-    restart: unless-stopped
-```
-
-运行：
-
-```bash
-docker-compose up -d
-```
-
-## 本地构建
-
-### 克隆仓库
-
-```bash
-git clone <your-repo-url>
-cd <your-repo-name>
-```
-
-### 构建镜像
-
-```bash
-docker build -t sjwayrhz/debian:latest .
-```
-
-### 测试镜像
-
-```bash
-docker run -d -p 8080:80 sjwayrhz/debian:latest
-```
-
-## s6-overlay 服务说明
-
-镜像中运行了两个 s6-overlay 服务：
-
-### 1. Nginx 服务
-
-- **路径**: `/etc/services.d/nginx/run`
-- **功能**: 以非守护进程模式运行 Nginx
-- **端口**: 80
-
-### 2. 时间监控服务
-
-- **路径**: `/etc/services.d/time-monitor/run`
-- **功能**: 每秒更新 `/usr/share/nginx/html/index.html`，显示当前北京时间
-- **更新频率**: 1秒
-
-## GitHub Actions 配置
-
-### 设置 Secrets
-
-在你的 GitHub 仓库中设置以下 Secrets：
-
-1. 进入仓库的 **Settings** → **Secrets and variables** → **Actions**
-2. 添加以下 secrets：
-   - `DOCKERHUB_USERNAME`: 你的 Docker Hub 用户名
-   - `DOCKERHUB_TOKEN`: 你的 Docker Hub 访问令牌
-
-### 触发条件
-
-GitHub Actions 工作流会在以下情况下触发：
-
-- **手动触发**: 在 Actions 页面点击 "Run workflow"
-- **推送到 main 分支**: 自动构建并推送 `latest` 标签
-- **推送 tag**: 自动构建并推送对应的标签版本
-
-### 示例：创建新版本
-
-```bash
-# 创建并推送 tag
-git tag v1.0.0
-git push origin v1.0.0
-
-# 将自动构建并推送以下镜像：
-# - sjwayrhz/debian:v1.0.0
-# - sjwayrhz/debian:latest (如果在 main 分支)
-```
-
-## 文件结构
-
-```
+```text
 .
-├── Dockerfile
-├── .github
-│   └── workflows
-│       └── docker-build.yml
-└── README.md
+├── Dockerfile          # 镜像构建文件
+├── README.md           # 说明文档
+└── rootfs/             # 容器文件系统覆盖层
+    ├── etc/
+    │   ├── nginx/      # Nginx 配置文件
+    │   └── services.d/ # S6 服务定义目录
+    │       ├── nginx/
+    │       └── time-monitor/
+    └── usr/
+        └── share/
+            └── nginx/
+                └── html/
+                    └── index.html  # 静态前端页面
 ```
 
-## 技术细节
+## 🚀 快速开始
 
-- **基础镜像**: debian:bookworm-slim
-- **s6-overlay 版本**: 3.1.6.2
-- **时区**: Asia/Shanghai (UTC+8)
-- **架构支持**: linux/amd64, linux/arm64
-
-## 查看日志
-
-查看所有服务日志：
+### 1. 构建镜像
 
 ```bash
-docker logs debian-s6
+docker build -t my-time-monitor .
 ```
 
-进入容器查看特定服务：
+### 2. 运行容器
 
 ```bash
-docker exec -it debian-s6 bash
+docker run -d -p 8080:80 --name time-app my-time-monitor
 ```
 
-## 停止和清理
+### 3. 查看效果
 
+浏览器访问 [http://localhost:8080](http://localhost:8080)。
+
+你会看到时间在跳动，但浏览器的刷新按钮并没有在转圈，这就是 AJAX 的魔力。
+
+## 🛠️ 关键代码解析
+
+### 后台脚本 (rootfs/etc/services.d/time-monitor/run)
+这个脚本不再生成 HTML，而是生成纯文本数据：
 ```bash
-# 停止容器
-docker stop debian-s6
-
-# 删除容器
-docker rm debian-s6
-
-# 删除镜像
-docker rmi sjwayrhz/debian:latest
+while true; do
+  date +"%Y-%m-%d %H:%M:%S" > /usr/share/nginx/html/time.txt
+  sleep 1
+done
 ```
 
-## 自定义
-
-### 修改时区
-
-在 Dockerfile 中修改 `TZ` 环境变量：
-
-```dockerfile
-ENV TZ=America/New_York
+### 前端逻辑 (rootfs/usr/share/nginx/html/index.html)
+JavaScript 定时获取数据：
+```javascript
+setInterval(async () => {
+    const res = await fetch('time.txt?t=' + Date.now()); // 防止缓存
+    document.getElementById('display').innerText = await res.text();
+}, 1000);
 ```
-
-### 修改更新频率
-
-编辑 `/etc/services.d/time-monitor/run` 中的 `sleep 1` 来调整更新间隔。
-
-## License
-
-MIT
