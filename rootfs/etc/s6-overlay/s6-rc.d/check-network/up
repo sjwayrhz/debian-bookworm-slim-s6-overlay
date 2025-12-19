@@ -1,7 +1,3 @@
 #!/bin/bash
-echo "[Network Check] 正在测试网络..."
-
-curl -I -s -m 5 http://www.baidu.com > /dev/null && echo "网络正常" || echo "网络受限"
-
-# 无论结果如何，必须返回 0
+echo "[Init] 容器环境初始化完成，准备启动服务..."
 exit 0
