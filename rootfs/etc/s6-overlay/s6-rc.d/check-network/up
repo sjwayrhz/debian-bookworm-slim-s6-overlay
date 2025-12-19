@@ -1,15 +1,7 @@
 #!/bin/bash
-# 路径: rootfs/etc/s6-overlay/s6-rc.d/check-network/up
+echo "[Network Check] 正在测试网络..."
 
-echo "[Network Check] 正在检查网络连通性..."
+curl -I -s -m 5 http://www.baidu.com > /dev/null && echo "网络正常" || echo "网络受限"
 
-# 使用变量获取状态码，逻辑更清晰
-HTTP_CODE=$(curl -I -s -m 5 -o /dev/null -w "%{http_code}" http://www.baidu.com)
-
-if [ "$HTTP_CODE" = "200" ]; then
-    echo "[Network Check] 网络连接正常！"
-else
-    echo "[Network Check] 警告：无法连接外网 (状态码: $HTTP_CODE)，但 Nginx 将继续尝试启动。"
-fi
-
+# 无论结果如何，必须返回 0
 exit 0
