@@ -1,9 +1,0 @@
-#!/command/with-environ sh
-OUTPUT_FILE="/var/www/html/time.json"
-mkdir -p /var/www/html
-while true; do
-    CURRENT_TIME=$(date "+%H:%M:%S")
-    DATE_STR=$(date "+%Y-%m-%d")
-    echo "{\"time\": \"$CURRENT_TIME\", \"date\": \"$DATE_STR\"}" > "$OUTPUT_FILE"
-    sleep 1
-done
