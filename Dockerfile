@@ -39,6 +39,9 @@ RUN rm -rf /etc/nginx/sites-enabled/* && \
     rm -rf /etc/nginx/conf.d/*
 # 【核心改动】将 rootfs 文件夹内的所有内容复制到容器根目录
 COPY rootfs /
+# sed -i 's/\r$//' 会删掉每一行结尾可能存在的 \r
+RUN find /etc/s6-overlay/s6-rc.d -name run -o -name up | xargs sed -i 's/\r$//' && \
+    find /etc/s6-overlay/s6-rc.d -name run -o -name up | xargs chmod +x
 
 # 赋予脚本可执行权限 (包含 nginx, time-monitor 和新的 oneshot 脚本)
 RUN chmod +x /etc/s6-overlay/s6-rc.d/nginx/run && \
