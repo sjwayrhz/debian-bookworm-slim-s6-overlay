@@ -34,6 +34,9 @@ RUN set -x && \
     tar -C / -Jxpf /tmp/s6-overlay-arch.tar.xz && \
     rm -rf /tmp/*
 
+# 清理 Nginx 默认配置
+RUN rm -rf /etc/nginx/sites-enabled/* && \
+    rm -rf /etc/nginx/conf.d/*
 # 【核心改动】将 rootfs 文件夹内的所有内容复制到容器根目录
 COPY rootfs /
 
