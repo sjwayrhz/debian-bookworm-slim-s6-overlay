@@ -1,0 +1,2 @@
+#!/command/with-environ sh
+exec nginx -g "daemon off;"

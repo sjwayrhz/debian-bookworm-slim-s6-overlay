@@ -1,5 +1,0 @@
-#!/command/with-contenv sh
-while true; do
-  echo "Last heartbeat: $(date)" > /var/www/html/index.html
-  sleep 1
-done
