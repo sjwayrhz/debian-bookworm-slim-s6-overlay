@@ -19,6 +19,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
 # 4. 拷贝 HTML 文件 (从你指定的目录)
+RUN rm -rf /var/www/html/*
 COPY dist/ /var/www/html/
 RUN chown -R www-data:www-data /var/www/html
 
