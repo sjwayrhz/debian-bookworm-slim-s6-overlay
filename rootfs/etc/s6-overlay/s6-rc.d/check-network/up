@@ -1,3 +1,23 @@
 #!/bin/bash
-echo "[Init] 容器环境初始化完成，准备启动服务..."
+# oneshot 启动脚本：仅执行一次
+
+echo "[Init] 正在执行系统准入检查..."
+
+# 检查网络（如果不通，仅打印警告，不中断启动）
+HTTP_CODE=$(curl -I -s -m 5 -o /dev/null -w "%{http_code}" http://www.baidu.com || echo "000")
+
+if [ "$HTTP_CODE" = "200" ]; then
+    echo "[Init] 网络连接正常 (HTTP 200)"
+else
+    echo "[Init] 警告：无法连接外网 (状态码: $HTTP_CODE)，环境可能受限。"
+fi
+
+# 检查关键目录权限
+if [ -w "/usr/share/nginx/html" ]; then
+    echo "[Init] 网页目录权限检查通过。"
+else
+    echo "[Init] 修复网页目录权限..."
+    chown -R www-data:www-data /usr/share/nginx/html
+fi
+
 exit 0
